@@ -28,14 +28,34 @@ async function main() {
   
   console.log("address", addy);
   
-  for(let i = 0; i < 550; i++) {
-  let txn = await cube.mint(1)
-  await txn.wait()
+  /*
+  for(let i = 0; i < 100; i++) {
+    let txnCube = await cube.mint(1);
   }
- // let hydroBal = await chem.supplyBalance(owner.address, 1);
-//  console.log("Hydrogen balance:", hydroBal)
-//  let oxyBal = await chem.supplyBalance(owner.address, 8);
-//  console.log("Oxygen balance:", oxyBal)
+  */
+  let txnCube = await cube.mint(11);
+
+  /*
+  // break open individually
+  for(let i = 0; i < 20; i++) {
+    let txnbreak = await cube.breakOpen();
+  }
+  */
+ 
+  let txnBulk = await cube.bulkBreakOpen();
+
+  let txnMintAll = await cube.mintOneOfEach();
+
+   let txnCreateDAO = await cube.createDAOCube();
+
+  for(let i = 0; i < 28; i++) {
+  let txnSupply = await cube.totalSupply(i);
+  console.log("total supply of", i, ":", txnSupply);
+  }
+
+
+ // let txn = await cube.mintOneOfEach()
+ // await txn.wait()
 
  
 }
