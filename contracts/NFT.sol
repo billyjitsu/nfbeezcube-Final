@@ -17,10 +17,12 @@ contract MyToken is ERC721, ERC721Enumerable, Ownable {
         _safeMint(msg.sender, tokenId);
     }
 
-    function safeMint(address to) public onlyOwner {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
+    function safeMint() public onlyOwner {
+        for (uint256 i = 0; i < 10; i++) {
+           uint256 tokenId = _tokenIdCounter.current();
+           _tokenIdCounter.increment();
+           _safeMint(msg.sender, tokenId);
+        }
     }
 
     // The following functions are overrides required by Solidity.

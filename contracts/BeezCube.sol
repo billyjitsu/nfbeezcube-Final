@@ -14,31 +14,29 @@ pragma solidity ^0.8.10;
       uint256 public constant maxTotalSupply = 5000;
       uint256 public maxPurchaseSupply = 2475; //5,000 - claimable (2525)
       uint256 public maxAmounts = 200; //max amounts for each NFT token
-
-      uint256 public constant Cube = 1;
-      uint256 private constant NFT2 = 2;
-      uint256 private constant NFT3 = 3;
-      //
-      uint256 public constant DAOCube = 27;
-
       //token ID for how many NFTs
       uint256 public cubesMinted;
-      uint256 private seed;
-      uint256 private previousRandom; // <<< set a previous random checker
       // Need to set max for just minted vs claiming
       uint256 public cubesPurchased;
       uint256 public cubesClaimed;
-      
 
-      
+      uint256 private constant Cube = 1;
+      uint256 private constant DAOCube = 27;
+      uint256 private seed;
+      uint256 private previousRandom; // <<< set a previous random checker
 
-      string public CubeNFT =  'ipfs://Qmf5DJLJCgZFaPa1U9qUKTYEnqCFoBk8xH7mnrMtfGga8D/';  
+      //To DOs - Add a way to change IPFS link
+      // Add a way to pull tokens
+      // Work in a true random system
+      // Add a way to update max tokens
+
+      string public CubeNFT =  'ipfs://QmRavqAonhSrsckz1T4zBb9eNu4Xk554FBY5kvhCfTjtb6/';  
       // NFBeezNFT contract instance
       INFBeez NFBeezNFT;
       // Mapping to keep track of which tokenIds have been claimed
       mapping(uint256 => bool) public nfbeezClaimed;
-      //supply balance of msg.sender
- //     mapping(address => mapping (uint256 => uint256))  public supplyBalance;  DO I NEED THIS?
+      // Need a mapping for all NFTs minted overall
+      mapping (uint256 => uint256) public tokensMinted;  // <<< 
 
       constructor(address _ogNFBeezContract) ERC1155(CubeNFT) {
           NFBeezNFT = INFBeez(_ogNFBeezContract);
@@ -51,11 +49,11 @@ pragma solidity ^0.8.10;
         //    require(msg.value >= _requiredAmount, "Ether sent is incorrect"); <<< The fee
           require(
               (cubesMinted + amount) <= maxTotalSupply,
-              "Exceeds the max total supply available."
+              "Exceeds the max total supply available TS."
           );
           require(
               (cubesMinted + amount) <= maxPurchaseSupply,
-              "Exceeds the max total supply available."
+              "Exceeds the max total supply available PS."
           );
           
           _mint(msg.sender, Cube, amount, "");
@@ -68,13 +66,10 @@ pragma solidity ^0.8.10;
       }
 
       function breakOpen() external { // add nonrentrant
-            //add a requirement of checking the mapping to make sure they own it
-           // uint256 cubeSupply = supplyBalance[msg.sender][Cube];
-           
             uint256 cubeSupply = balanceOf(msg.sender, Cube);
             require(cubeSupply > 0, 'Need a cube');
             _burn(msg.sender, Cube, 1);
-        //        supplyBalance[msg.sender][Cube] -= 1;  DO I NEED THIS?
+
             //start random number
             uint256 randomNFT = randomize();
             console.log("randomNFT value:", randomNFT);
@@ -86,6 +81,9 @@ pragma solidity ^0.8.10;
             }
             //require that not to many of the same tokens are minted by chance. if it is .. run again.
             _mint(msg.sender, randomNFT, 1, ""); 
+
+            tokensMinted[randomNFT] += 1; // mapping for token ID
+            
             previousRandom =  randomNFT;
       }
 
@@ -93,7 +91,6 @@ pragma solidity ^0.8.10;
             uint256 cubeSupply = balanceOf(msg.sender, Cube);
             require(cubeSupply > 0, 'Need a cube');
             _burn(msg.sender, Cube, cubeSupply);
-       //     supplyBalance[msg.sender][Cube] -= cubeSupply;  DO I NEED THIS?
 
             //loop through but create a random number for each one
             for (uint256 i = 0; i < cubeSupply; i++) {
@@ -101,8 +98,10 @@ pragma solidity ^0.8.10;
                 uint256 randomNFT = randomize();
                 //require that not to many of the same tokens are minted by chance. if it is .. run again.
                 _mint(msg.sender, randomNFT, 1, ""); //randomize this
-        /////////////        console.log("randomNFT value:", i,  randomNFT);
-        //        supplyBalance[msg.sender][i] += 1; // << Do i need this because balanceOF  DO I NEED THIS?****
+
+                tokensMinted[randomNFT] += 1; // mapping for token ID
+
+                console.log("randomNFT value:", i,  randomNFT);
             }
       }
 
@@ -137,7 +136,6 @@ pragma solidity ^0.8.10;
          require((cubesMinted + _amount) <= maxTotalSupply, "Exceeds the max total supply available.");
          require((cubesMinted + _amount) <= maxPurchaseSupply, "Exceeds the max total supply available.");
          _mint(msg.sender, _tokenId, _amount, "");
-         //supplyBalance[msg.sender][Cube] += _amount;
           //update _amount of cubes minted
           cubesMinted += _amount;
           // update _amount of just CUBES PURCHASED
@@ -175,8 +173,7 @@ pragma solidity ^0.8.10;
           require(amount > 0, "You have already claimed all the tokens");
           // call the internal function from Openzeppelin's ERC20 contract
           _mint(msg.sender, Cube, amount, "");
-          //update msg.sender balance
-       //   supplyBalance[msg.sender][Cube] += amount;  DO I NEED THIS?
+
           //update amount of cubes minted
           cubesMinted += amount;
           cubesClaimed += amount;

@@ -26,29 +26,43 @@ async function main() {
   [owner, addr1, addr2, _] = await ethers.getSigners();
   let addy = await cube.address
   
-  console.log("address", addy);
+  //console.log("address", addy);
+
+  // NFT Claim
   
-  /*
-  for(let i = 0; i < 100; i++) {
+  
+   for(let i = 0; i < 200; i++) {
+     let txnMintNFT = await web3.safeMint();
+     await txnMintNFT.wait()
+   }
+   
+  
+
+  let txnClaim = await cube.claim();
+  ////
+
+ /* 
+  for(let i = 0; i < 2474; i++) {
     let txnCube = await cube.mint(1);
   }
-  */
-  let txnCube = await cube.mint(11);
+  
+ // let txnCube = await cube.mint(20);
 
   /*
   // break open individually
-  for(let i = 0; i < 20; i++) {
+  for(let i = 0; i < 100; i++) {
     let txnbreak = await cube.breakOpen();
   }
   */
+  
  
-  let txnBulk = await cube.bulkBreakOpen();
+ // let txnBulk = await cube.bulkBreakOpen();
 
-  let txnMintAll = await cube.mintOneOfEach();
+ // let txnMintAll = await cube.mintOneOfEach();
 
-   let txnCreateDAO = await cube.createDAOCube();
+ //  let txnCreateDAO = await cube.createDAOCube();
 
-  for(let i = 0; i < 28; i++) {
+  for(let i = 1; i < 28; i++) {
   let txnSupply = await cube.totalSupply(i);
   console.log("total supply of", i, ":", txnSupply);
   }
