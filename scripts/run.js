@@ -31,11 +31,14 @@ async function main() {
   // NFT Claim
   
   
-   for(let i = 0; i < 200; i++) {
+   for(let i = 0; i < 20; i++) {
      let txnMintNFT = await web3.safeMint();
      await txnMintNFT.wait()
    }
    
+   console.log("going to pause")
+ // let txnPauseNFT = await cube.togglePause();
+  //console.log("status", txnPauseNFT)
   
 
   let txnClaim = await cube.claim();
