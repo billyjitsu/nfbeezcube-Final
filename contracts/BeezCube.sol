@@ -1,5 +1,5 @@
   // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
@@ -7,10 +7,11 @@ import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "./QRNG.sol";
 import "./INFBeez.sol";
 import "hardhat/console.sol";
 
-  contract BeezCube is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard {
+  contract BeezCube is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
       // Price of one Cube 
       uint256 public tokenPrice = 0.001 ether;
       uint256 public constant maxTotalSupply = 5000;
@@ -46,7 +47,7 @@ import "hardhat/console.sol";
       // Need a mapping for all NFTs minted overall
       mapping (uint256 => uint256) public tokensMinted;  // <<< 
 
-      constructor(address _ogNFBeezContract) ERC1155(CubeNFT) {
+      constructor(address _ogNFBeezContract, address _airnodeRrp) ERC1155(CubeNFT) RrpRequesterV0(_airnodeRrp)  {
           NFBeezNFT = INFBeez(_ogNFBeezContract);
 
           //set royalty info
@@ -271,9 +272,9 @@ import "hardhat/console.sol";
         require(success);
     }
 
-      // Function to receive Ether. msg.data must be empty
-      receive() external payable {}
+    // Function to receive Ether. msg.data must be empty
+    receive() external payable {}
 
-      // Fallback function is called when msg.data is not empty
-      fallback() external payable {}
+    // Fallback function is called when msg.data is not empty
+    fallback() external payable {}
   }

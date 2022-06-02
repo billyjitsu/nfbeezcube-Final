@@ -31,17 +31,17 @@ async function main() {
   // NFT Claim
   
   
-   for(let i = 0; i < 20; i++) {
+   for(let i = 0; i < 3; i++) {
      let txnMintNFT = await web3.safeMint();
      await txnMintNFT.wait()
    }
    
-   console.log("going to pause")
+  // console.log("going to pause")
  // let txnPauseNFT = await cube.togglePause();
   //console.log("status", txnPauseNFT)
   
 
-  let txnClaim = await cube.claim();
+ // let txnClaim = await cube.claim();
   ////
 
  /* 
@@ -65,10 +65,10 @@ async function main() {
 
  //  let txnCreateDAO = await cube.createDAOCube();
 
-  for(let i = 1; i < 28; i++) {
-  let txnSupply = await cube.totalSupply(i);
-  console.log("total supply of", i, ":", txnSupply);
-  }
+ // for(let i = 1; i < 28; i++) {
+ // let txnSupply = await cube.totalSupply(i);
+ // console.log("total supply of", i, ":", txnSupply);
+ // }
 
 
  // let txn = await cube.mintOneOfEach()
