@@ -28,8 +28,8 @@ import "./INFBeez.sol";
       uint256 private constant DAOCube = 27;
       uint256 private seed; 
       uint256 private previousRandom;
-
-      bool public paused; // Pause all mint and claim activity
+      // Pause all mint and claim activity
+      bool public paused; 
 
       /******** TODOs ********
       test cap for DAO cube - 3
