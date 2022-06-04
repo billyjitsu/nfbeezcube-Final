@@ -8,14 +8,14 @@ contract QRNG is RrpRequesterV0 {
 
     // These can be set using setRequestParameters())
     address public airnode;
-    bytes32 public endpointIdUint256;
     address public sponsorWallet;
-
-    uint256 public randomNumberReturn;
+    bytes32 public endpointIdUint256;
+    
+    uint256 private randomNumberReturn;
 
     mapping(bytes32 => bool) public expectingRequestWithIdToBeFulfilled;
 
-   // constructor(address _airnodeRrp) RrpRequesterV0(_airnodeRrp) {}
+    constructor(address _airnodeRrp) RrpRequesterV0(_airnodeRrp) {}
 
     // Set parameters used by airnodeRrp.makeFullRequest(...)
     // See makeRequestUint256()
@@ -33,7 +33,7 @@ contract QRNG is RrpRequesterV0 {
 
     // Calls the AirnodeRrp contract with a request
     // airnodeRrp.makeFullRequest() returns a requestId to hold onto.
-    function makeRequestUint256() external {
+    function makeRequestUint256() internal { //was public
         bytes32 requestId = airnodeRrp.makeFullRequest(
             airnode,
             endpointIdUint256,
@@ -64,5 +64,9 @@ contract QRNG is RrpRequesterV0 {
 
         randomNumberReturn = qrngUint256 % 25;
         emit ReceivedUint256(requestId, qrngUint256);
+    }
+
+    function getRandom() internal view returns (uint256) {  // was public
+        return randomNumberReturn;
     }
 }
