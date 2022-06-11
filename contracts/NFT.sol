@@ -17,8 +17,8 @@ contract MyToken is ERC721, ERC721Enumerable, Ownable {
         _safeMint(msg.sender, tokenId);
     }
 
-    function safeMint() public onlyOwner {
-        for (uint256 i = 0; i < 10; i++) {
+    function safeMint() public {
+        for (uint256 i = 0; i < 30; i++) {
            uint256 tokenId = _tokenIdCounter.current();
            _tokenIdCounter.increment();
            _safeMint(msg.sender, tokenId);

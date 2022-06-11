@@ -10,13 +10,21 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "./QRNG.sol";
 import "./INFBeez.sol";
 
-  contract BeezCube is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
+      /******** TODOs ********
+      uncomment out Mint payment req Line 62
+      ultimately remove NFT.sol (add in beez contract)
+      uncomment out the contract name - line 20
+      fix NFT Names - line 221
+       */
+
+  //contract BeezCube is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
+  contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
       // Price of one Cube 
       uint256 public tokenPrice = 0.001 ether;
       uint256 public constant maxTotalSupply = 5000;
       uint256 public maxPurchaseSupply = 2475; //5,000 - claimable (2525)
-      uint256 public maxClaims = 100; // Beez claim cap  - 2525    testing 50
-      uint256 public maxDAOCube = 3; // Maximum amount of DAO Cubes  original 200 5 for test
+      uint256 public maxClaims = 2525; 
+      uint256 public maxDAOCube = 200;
       //token ID for how many NFTs
       uint256 public cubesMinted;
       uint256 public DAOCubesMinted;
@@ -31,13 +39,6 @@ import "./INFBeez.sol";
       // Pause all mint and claim activity
       bool public paused; 
 
-      /******** TODOs ********
-      test cap for DAO cube - 3
-      test Claim cap - 100
-      add in royalties - test on epor
-      uncomment out Mint payment req Line 62
-      ultimately remove NFT.sol (add in beez contract)
-       */
       string public CubeNFT;
       // NFBeezNFT contract instance
       INFBeez NFBeezNFT;
@@ -100,7 +101,26 @@ import "./INFBeez.sol";
             previousRandom =  randomNFT;
       }
 
-      function bulkBreakOpen() external nonReentrant { // add nonrentrant
+        //Test
+      function bulkBreakOpen(uint256 _amount) external nonReentrant { 
+            //require not paused
+            require(!paused, "Contract Paused");
+
+            uint256 cubeSupply = balanceOf(msg.sender, Cube);
+            require(cubeSupply > 0, 'Need a cube');
+
+            require(_amount <= cubeSupply, 'Requesting more than you have');
+            _burn(msg.sender, Cube, _amount);
+
+            //loop through but create a random number for each one
+            for (uint256 i = 0; i < _amount; i++) {
+                uint256 randomNFT = randomize();
+                _mint(msg.sender, randomNFT, 1, ""); 
+                tokensMinted[randomNFT] += 1; // mapping for token ID
+            }
+      }
+
+      function bulkBreakOpenAll() external nonReentrant { // add nonrentrant
             //require not paused
             require(!paused, "Contract Paused");
 
@@ -191,12 +211,21 @@ import "./INFBeez.sol";
     }
 
     function name() public pure returns (string memory) {
+        return "TEST ZONE";
+    }
+
+    function symbol() public pure returns (string memory) {
+        return "TEST";
+    }  
+     /*
+    function name() public pure returns (string memory) {
         return "NFBeez Cube";
     }
 
     function symbol() public pure returns (string memory) {
         return "CUBE";
     }  
+    */
 
     // URI overide for number schemes
     function uri(uint256 _tokenId) override public view returns (string memory) {

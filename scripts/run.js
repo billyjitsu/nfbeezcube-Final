@@ -2,6 +2,11 @@ const hre = require("hardhat");
 
 async function main() {
 
+  const airnodeRrp = "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd"; // Rinkeby & Gnosis
+  const royaltyWallet = "0x49284a18822eE0d75fD928e5e0fC5a46C9213D96";
+  const ipfsPath = "https://nfbeez.mypinata.cloud/ipfs/QmbrPWpDqrfKKaCw9XVvroUb3cS7c8LYP3jvAP6ZhQDekC/";
+  
+
   const Web3 = await hre.ethers.getContractFactory("MyToken");
   const web3 = await Web3.deploy();
 
@@ -12,8 +17,9 @@ async function main() {
   console.log("gasUsed:" , receipt.gasUsed);
 
 
-  const CUBE = await hre.ethers.getContractFactory("BeezCube");
-  const cube = await CUBE.deploy(web3.address);
+ // const CUBE = await hre.ethers.getContractFactory("BeezCube");
+ const CUBE = await hre.ethers.getContractFactory("TestZone");
+  const cube = await CUBE.deploy(web3.address, airnodeRrp, royaltyWallet, ipfsPath);
 
   await cube.deployed();
 
@@ -31,18 +37,17 @@ async function main() {
   // NFT Claim
   
   
-   for(let i = 0; i < 3; i++) {
+   for(let i = 0; i < 5; i++) {
      let txnMintNFT = await web3.safeMint();
      await txnMintNFT.wait()
    }
-   
+   console.log("Minted tokens")
   // console.log("going to pause")
  // let txnPauseNFT = await cube.togglePause();
   //console.log("status", txnPauseNFT)
   
-
- // let txnClaim = await cube.claim();
-  ////
+  let txnClaim = await cube.claim();
+  console.log("Claim Cubes")
 
  /* 
   for(let i = 0; i < 2474; i++) {

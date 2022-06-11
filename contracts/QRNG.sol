@@ -1,8 +1,9 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract QRNG is RrpRequesterV0 {
+contract QRNG is Ownable, RrpRequesterV0 {
     event RequestedUint256(bytes32 indexed requestId);
     event ReceivedUint256(bytes32 indexed requestId, uint256 response);
 
@@ -23,7 +24,7 @@ contract QRNG is RrpRequesterV0 {
         address _airnode,
         bytes32 _endpointIdUint256,
         address _sponsorWallet
-    ) external {
+    ) external onlyOwner {
         // Normally, this function should be protected, as in:
         // require(msg.sender == owner, "Sender not owner");
         airnode = _airnode;
@@ -33,7 +34,7 @@ contract QRNG is RrpRequesterV0 {
 
     // Calls the AirnodeRrp contract with a request
     // airnodeRrp.makeFullRequest() returns a requestId to hold onto.
-    function makeRequestUint256() internal { //was public
+    function makeRequestUint256() internal { 
         bytes32 requestId = airnodeRrp.makeFullRequest(
             airnode,
             endpointIdUint256,

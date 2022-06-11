@@ -5,11 +5,13 @@ async function main() {
   //variables
  // const royalty = "500";
  
-
-  const airnodeRrp = "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd"; // Rinkeby
+  const NFBeez = "0x0f37B8101f014cf9806799b7159b32c010397d55";
+  const airnodeRrp = "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd"; // Rinkeby & Gnosis
   const royaltyWallet = "0x49284a18822eE0d75fD928e5e0fC5a46C9213D96";
-  const ipfsPath = "https://nfbeez.mypinata.cloud/ipfs/QmRavqAonhSrsckz1T4zBb9eNu4Xk554FBY5kvhCfTjtb6/";
+  const ipfsPath = "https://nfbeez.mypinata.cloud/ipfs/QmbrPWpDqrfKKaCw9XVvroUb3cS7c8LYP3jvAP6ZhQDekC/";
   
+  
+ 
   const Web3 = await hre.ethers.getContractFactory("MyToken");
   const web3 = await Web3.deploy();
 
@@ -18,16 +20,17 @@ async function main() {
   console.log("Template Contract deployed to:", web3.address);
   const receipt = await web3.deployTransaction.wait();
   console.log("gasUsed:" , receipt.gasUsed);
+ 
 
-
-  const CUBE = await hre.ethers.getContractFactory("BeezCube");
+ // const CUBE = await hre.ethers.getContractFactory("BeezCube");
+  const CUBE = await hre.ethers.getContractFactory("TestZone");
   const cube = await CUBE.deploy(web3.address, airnodeRrp, royaltyWallet, ipfsPath);
 
   await cube.deployed();
 
   console.log("BeezCube Contract deployed to:", cube.address);
   const receipt2 = await cube.deployTransaction.wait();
-  console.log("gasUsed:" , receipt.gasUsed);
+  console.log("gasUsed:" , receipt2.gasUsed);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
