@@ -15,12 +15,14 @@ import "./INFBeez.sol";
       ultimately remove NFT.sol (add in beez contract)
       uncomment out the contract name - line 20
       fix NFT Names - line 221
+      UPDDATE to correct price
+      Possible Mint bonus for DAO Cube
        */
 
   //contract BeezCube is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
   contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
       // Price of one Cube 
-      uint256 public tokenPrice = 0.001 ether;
+      uint256 public tokenPrice = 0.0001 ether;  //fix price
       uint256 public constant maxTotalSupply = 5000;
       uint256 public maxPurchaseSupply = 2475; //5,000 - claimable (2525)
       uint256 public maxClaims = 2525; 
@@ -36,6 +38,10 @@ import "./INFBeez.sol";
       uint256 private constant DAOCube = 27;
       uint256 private seed; 
       uint256 private previousRandom;
+      //Payout addresses
+      address public artist;
+      address public beezSafe;
+      address public donation;
       // Pause all mint and claim activity
       bool public paused; 
 
@@ -47,13 +53,17 @@ import "./INFBeez.sol";
       // Need a mapping for all NFTs minted overall
       mapping (uint256 => uint256) public tokensMinted;  
 
-      constructor(address _ogNFBeezContract, address _airnodeRrp, address _royalty, string memory _cubeNFT) ERC1155(_cubeNFT) QRNG(_airnodeRrp)  {
+
+      constructor(address _ogNFBeezContract, address _airnodeRrp, address _royalty, string memory _cubeNFT, address _artist, address _beezSafe, address _donation) ERC1155(_cubeNFT) QRNG(_airnodeRrp)  {
           NFBeezNFT = INFBeez(_ogNFBeezContract);
 
           //set royalty info
           uint96 _royaltyFeesInBips = 500;
           setRoyaltyInfo(_royalty, _royaltyFeesInBips);
           CubeNFT = _cubeNFT;
+          artist = _artist;
+          beezSafe = _beezSafe;
+          donation = _donation;
       }
 
      
@@ -63,7 +73,7 @@ import "./INFBeez.sol";
           require(!paused, "Contract Paused");
           // the value of ether that should be equal or greater than tokenPrice * amount;
           uint256 _requiredAmount = tokenPrice * amount;
-          //    require(msg.value >= _requiredAmount, "Ether sent is incorrect"); <<< The fee
+          require(msg.value >= _requiredAmount, "Ether sent is incorrect");
           require(
               (cubesMinted + amount) <= maxTotalSupply,
               "Exceeds the max total supply available TS."
@@ -101,7 +111,6 @@ import "./INFBeez.sol";
             previousRandom =  randomNFT;
       }
 
-        //Test
       function bulkBreakOpen(uint256 _amount) external nonReentrant { 
             //require not paused
             require(!paused, "Contract Paused");
@@ -267,6 +276,21 @@ import "./INFBeez.sol";
     function setNewDAOCubeMax(uint256 _newMax) external onlyOwner {
         maxDAOCube = _newMax; //Incase Tokens go offbalance
     } 
+
+    //update artist wallet
+    function updateArtistWallet(address _artist) external onlyOwner {
+        artist = _artist; 
+    } 
+
+    //update Beez Safe Wallet
+    function updateBeezWallet(address _beezSafe) external onlyOwner {
+        beezSafe = _beezSafe; 
+    } 
+
+    // update Donations Wallet
+    function updateDonationWallet(address _donation) external onlyOwner {
+        donation = _donation; 
+    } 
     
     //function to pull out token
     function withdrawToken(IERC20 token) external onlyOwner {
@@ -274,9 +298,17 @@ import "./INFBeez.sol";
     }
 
     // Pull Payments
-    function withdraw() external onlyOwner nonReentrant {
-        (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
-        require(success);
+    function withdraw() external onlyOwner{
+        //5%  calculation
+        uint256 withdrawAmount_5 = (address(this).balance) * 5/100;
+        //20%
+        uint256 withdrawAmount_20 = (address(this).balance) * 20/100;
+
+        (bool success, ) = payable(artist).call{value:  withdrawAmount_20}("");
+        (bool sent, ) = payable(beezSafe).call{value: withdrawAmount_20}("");
+        (bool don, ) = payable(donation).call{value: withdrawAmount_5}("");
+        (bool delivered, ) = payable(msg.sender).call{value: address(this).balance}("");
+        require(delivered);
     }
 
     // Function to receive Ether. msg.data must be empty

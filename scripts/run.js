@@ -9,7 +9,6 @@ async function main() {
 
   const Web3 = await hre.ethers.getContractFactory("MyToken");
   const web3 = await Web3.deploy();
-
   await web3.deployed();
 
   console.log("Template Contract deployed to:", web3.address);
@@ -18,9 +17,8 @@ async function main() {
 
 
  // const CUBE = await hre.ethers.getContractFactory("BeezCube");
- const CUBE = await hre.ethers.getContractFactory("TestZone");
+  const CUBE = await hre.ethers.getContractFactory("TestZone");
   const cube = await CUBE.deploy(web3.address, airnodeRrp, royaltyWallet, ipfsPath);
-
   await cube.deployed();
 
   console.log("Template Contract deployed to:", cube.address);
