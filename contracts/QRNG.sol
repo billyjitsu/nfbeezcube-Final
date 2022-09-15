@@ -11,8 +11,8 @@ contract QRNG is Ownable, RrpRequesterV0 {
     address public airnode;
     address public sponsorWallet;
     bytes32 public endpointIdUint256;
-    
-    uint256 private randomNumberReturn;
+
+    uint256 public randomNumberReturn;  // make private
 
     mapping(bytes32 => bool) public expectingRequestWithIdToBeFulfilled;
 
@@ -34,7 +34,7 @@ contract QRNG is Ownable, RrpRequesterV0 {
 
     // Calls the AirnodeRrp contract with a request
     // airnodeRrp.makeFullRequest() returns a requestId to hold onto.
-    function makeRequestUint256() internal { 
+    function makeRequestUint256() internal {
         bytes32 requestId = airnodeRrp.makeFullRequest(
             airnode,
             endpointIdUint256,
@@ -67,7 +67,8 @@ contract QRNG is Ownable, RrpRequesterV0 {
         emit ReceivedUint256(requestId, qrngUint256);
     }
 
-    function getRandom() internal view returns (uint256) {  // was public
+    function getRandom() internal view returns (uint256) {
+        // was public
         return randomNumberReturn;
     }
 }
