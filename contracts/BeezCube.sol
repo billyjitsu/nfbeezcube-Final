@@ -19,6 +19,8 @@ import "./INFBeez.sol";
       Possible Mint bonus for DAO Cube
       create events - cubes created.. etc
 
+      check each bulk burn for 27 max
+
       on QRNG.sol
       linet 15 make private
       change line 66 mod 25 (change to new number)
@@ -125,6 +127,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
 
         uint256 sum = (realRandom + localRandom) % 25;  // adjusting for 25 nfts
         uint256 randomNFT = sum + 2; //offset 0 and 1
+
         // check to see if it is the same number that was previously minted
         //if (randomNFT == previousRandom) {
         //    randomNFT = randomize(); // change the number
@@ -147,12 +150,30 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         require(_amount <= cubeSupply, "Requesting more than you have");
         _burn(msg.sender, Cube, _amount);
 
+
+        //Pull a true random first
+        //Recieve random number
+        uint256 realRandom = randomize();
+
+
+        //loop through but create a random number for each one
+        for (uint256 i = 0; i < _amount; i++) {
+            //randomize
+            uint256 localRandom = randomNumber();
+            uint256 sum = (realRandom + localRandom) % 25;  // adjusting for 25 nfts
+            uint256 randomNFT = sum + 2; //offset 0 and 1
+
+            _mint(msg.sender, randomNFT, 1, "");
+            tokensMinted[randomNFT] += 1; // mapping for token ID
+        }
+        /*
         //loop through but create a random number for each one
         for (uint256 i = 0; i < _amount; i++) {
             uint256 randomNFT = randomize();
             _mint(msg.sender, randomNFT, 1, "");
             tokensMinted[randomNFT] += 1; // mapping for token ID
         }
+        */
     }
 
     function bulkBreakOpenAll() external nonReentrant {
@@ -164,12 +185,30 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         require(cubeSupply > 0, "Need a cube");
         _burn(msg.sender, Cube, cubeSupply);
 
+        //Pull a true random first
+        //Recieve random number
+        uint256 realRandom = randomize();
+
+        //loop through but create a random number for each one
+        for (uint256 i = 0; i < cubeSupply; i++) {
+            //randomize
+            uint256 localRandom = randomNumber();
+            uint256 sum = (realRandom + localRandom) % 25;  // adjusting for 25 nfts
+            uint256 randomNFT = sum + 2; //offset 0 and 1
+
+            _mint(msg.sender, randomNFT, 1, "");
+            tokensMinted[randomNFT] += 1; // mapping for token ID
+        }
+
+
+        /*
         //loop through but create a random number for each one
         for (uint256 i = 0; i < cubeSupply; i++) {
             uint256 randomNFT = randomize();
             _mint(msg.sender, randomNFT, 1, "");
             tokensMinted[randomNFT] += 1; // mapping for token ID
         }
+        */
     }
 
     function createDAOCube() external nonReentrant {  // add virtual upgrade option
@@ -187,15 +226,9 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
             require(balance > 0, "Not Complete Set");
         }
 
-        /* works
-        for (uint256 i = 2; i < 27; i++) {
+        for (uint256 i = 2; i < 27; i++) { //Check this burn number 
             _burn(msg.sender, i, 1);
         }
-        */
-        //TESTing
-            _burnBatch(msg.sender, 
-            [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26], 
-            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
 
         // create the DAO cube
         _mint(msg.sender, DAOCube, 1, "");
@@ -272,7 +305,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         return seed;
     }
 
-    function randomNumber () internal returns (uint256) {
+    function randomNumber () internal view returns (uint256) {
         // Add an additional seed
         uint256 localRand = (block.difficulty + block.timestamp + seed) % 25;
         return localRand;
