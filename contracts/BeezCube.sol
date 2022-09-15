@@ -44,6 +44,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     uint256 private constant Cube = 1;
     uint256 private constant DAOCube = 27; //change to new numbers
     uint256 private seed;
+    uint256 private shifter;
     uint256 private previousRandom;
     //Payout addresses
     address public artist;
@@ -307,7 +308,8 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
 
     function randomNumber () internal view returns (uint256) {
         // Add an additional seed
-        uint256 localRand = (block.difficulty + block.timestamp + seed) % 25;
+        uint256 localRand = (block.difficulty + block.timestamp + shifter) % 25;
+        shifter = localRand;
         return localRand;
     }
 
