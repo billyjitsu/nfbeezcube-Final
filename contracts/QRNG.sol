@@ -63,7 +63,7 @@ contract QRNG is Ownable, RrpRequesterV0 {
         uint256 qrngUint256 = abi.decode(data, (uint256));
         // Do what you want with `qrngUint256` here...
 
-        randomNumberReturn = qrngUint256 % 25;
+        randomNumberReturn = qrngUint256; // taking off % 25
         emit ReceivedUint256(requestId, qrngUint256);
     }
 

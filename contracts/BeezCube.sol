@@ -306,9 +306,9 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         return seed;
     }
 
-    function randomNumber () internal view returns (uint256) {
+    function randomNumber () internal returns (uint256) {
         // Add an additional seed
-        uint256 localRand = (block.difficulty + block.timestamp + shifter) % 25;
+        uint256 localRand = (block.difficulty + block.timestamp + shifter); //taking off %25
         shifter = localRand;
         return localRand;
     }
