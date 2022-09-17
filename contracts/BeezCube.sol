@@ -47,7 +47,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     uint256 private shifter;
     uint256 private previousRandom;
     //Payout addresses
-    address public artist;
+  //  address public artist;
     address public beezSafe;
     address public donation;
     // Pause all mint and claim activity
@@ -63,15 +63,21 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
 
     //events
     event CubeMinted(address minter, uint256 _amount);
+    //cube claimed
+    event CubeClaimed(address minter, uint256 _amount);
+    //cube broken
+    event CubeBroken(address minter, uint256 _amount);
 
     event DaoCubeCreated(address minter); //token ID
+
+    event AdminMinted(address reciever, uint256 _amount, uint256 _id);
 
     constructor(
         address _ogNFBeezContract,
         address _airnodeRrp,
         address _royalty,
         string memory _cubeNFT,
-        address _artist,
+       // address _artist,
         address _beezSafe,
         address _donation
     ) ERC1155(_cubeNFT) QRNG(_airnodeRrp) {
@@ -81,7 +87,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         uint96 _royaltyFeesInBips = 500;
         setRoyaltyInfo(_royalty, _royaltyFeesInBips);
         CubeNFT = _cubeNFT;
-        artist = _artist;
+     //   artist = _artist;
         beezSafe = _beezSafe;
         donation = _donation;
     }
@@ -92,8 +98,9 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         //require not paused
         require(!paused, "Contract Paused");
         // the value of ether that should be equal or greater than tokenPrice * amount;
-        uint256 _requiredAmount = tokenPrice * amount;
-        require(msg.value >= _requiredAmount, "Ether sent is incorrect");
+        //uint256 _requiredAmount = tokenPrice * amount;
+        //require(msg.value >= _requiredAmount, "Ether sent is incorrect");
+        require(msg.value >= (tokenPrice * amount), "Ether sent is incorrect"); // check this
         require(
             (cubesMinted + amount) <= maxTotalSupply,
             "Exceeds the max total supply available TS."
@@ -139,6 +146,8 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         tokensMinted[randomNFT] += 1;
         //Set a variable to check against on next run
         //previousRandom = randomNFT;
+        // Emit the event
+        emit CubeBroken(msg.sender, 1);
     }
 
     function bulkBreakOpen(uint256 _amount) external nonReentrant {
@@ -167,6 +176,8 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
             _mint(msg.sender, randomNFT, 1, "");
             tokensMinted[randomNFT] += 1; // mapping for token ID
         }
+
+        emit CubeBroken(msg.sender, _amount);
         /*
         //loop through but create a random number for each one
         for (uint256 i = 0; i < _amount; i++) {
@@ -201,6 +212,8 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
             tokensMinted[randomNFT] += 1; // mapping for token ID
         }
 
+        emit CubeBroken(msg.sender, cubeSupply);
+
 
         /*
         //loop through but create a random number for each one
@@ -221,13 +234,13 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         );
         //require not paused
         require(!paused, "Contract Paused");
-        for (uint256 i = 2; i < 27; i++) {
+        for (uint256 i = 2; i < DAOCube; i++) {
             //go through all the NFTs
             uint256 balance = balanceOf(msg.sender, i);
             require(balance > 0, "Not Complete Set");
         }
 
-        for (uint256 i = 2; i < 27; i++) { //Check this burn number 
+        for (uint256 i = 2; i < DAOCube; i++) { //Check this burn number 
             _burn(msg.sender, i, 1);
         }
 
@@ -241,7 +254,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     }
 
     //To distribute to participating DAOs - Will include in total Mints
-    function adminMint(uint256 _amount, uint256 _tokenId) external onlyOwner {
+    function adminMint(address _reciever,uint256 _amount, uint256 _tokenId) external onlyOwner {
         //require not paused
         require(!paused, "Contract Paused");
         require(
@@ -252,11 +265,12 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
             (cubesMinted + _amount) <= maxPurchaseSupply,
             "Exceeds the max total supply available."
         );
-        _mint(msg.sender, _tokenId, _amount, "");
+        _mint(_reciever, _tokenId, _amount, "");
         //update _amount of cubes minted
         cubesMinted += _amount;
         // update _amount of just CUBES PURCHASED
         cubesPurchased += _amount;
+        emit AdminMinted(_reciever, _amount, _tokenId);
     }
 
     function claim() public nonReentrant {
@@ -290,6 +304,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         //update amount of cubes minted
         cubesMinted += amount;
         cubesClaimed += amount;
+        emit CubeClaimed(msg.sender, balance);
     }
 
     function randomize() internal returns (uint256) {
@@ -376,10 +391,12 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         maxDAOCube = _newMax; //Incase Tokens go offbalance
     }
 
+    /*
     //update artist wallet
     function updateArtistWallet(address _artist) external onlyOwner {
         artist = _artist;
     }
+    */
 
     //update Beez Safe Wallet
     function updateBeezWallet(address _beezSafe) external onlyOwner {
@@ -401,17 +418,17 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
 
     // Pull Payments
     function withdraw() external onlyOwner {
-        //5%  calculation
-        uint256 withdrawAmount_5 = ((address(this).balance) * 5) / 100;
-        //20%
-        uint256 withdrawAmount_20 = ((address(this).balance) * 20) / 100;
+        //10%  calculation
+        uint256 withdrawAmount_10 = ((address(this).balance) * 10) / 100;
+        //25%
+        uint256 withdrawAmount_25 = ((address(this).balance) * 25) / 100;
 
-        (bool success, ) = payable(artist).call{value: withdrawAmount_20}("");
-        require(success, "artist not sent");
-        (bool sent, ) = payable(beezSafe).call{value: withdrawAmount_20}("");
+        (bool don, ) = payable(donation).call{value: withdrawAmount_10}("");
+        require(don, "Gitcoin not sent");
+        (bool sent, ) = payable(beezSafe).call{value: withdrawAmount_25}("");
         require(sent, "beezsafe not sent");
-        (bool don, ) = payable(msg.sender).call{value: withdrawAmount_5}("");
-        require(don, "donation not sent");
+        (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
+        require(success, "Safe not sent");
     }
 
     // Function to receive Ether. msg.data must be empty
