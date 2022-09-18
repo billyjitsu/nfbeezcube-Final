@@ -63,13 +63,9 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
 
     //events
     event CubeMinted(address minter, uint256 _amount);
-    //cube claimed
     event CubeClaimed(address minter, uint256 _amount);
-    //cube broken
     event CubeBroken(address minter, uint256 _amount);
-
-    event DaoCubeCreated(address minter); //token ID
-
+    event DaoCubeCreated(address minter); 
     event AdminMinted(address reciever, uint256 _amount, uint256 _id);
 
     constructor(
@@ -115,7 +111,6 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         cubesMinted += amount;
         // update amount of just CUBES PURCHASED
         cubesPurchased += amount;
-
         // Emit the event
         emit CubeMinted(msg.sender, amount);
     }
@@ -130,22 +125,15 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         _burn(msg.sender, Cube, 1);
         //Recieve random number
         uint256 realRandom = randomize();
-
         uint256 localRandom = randomNumber();
-
         uint256 sum = (realRandom + localRandom) % 25;  // adjusting for 25 nfts
         uint256 randomNFT = sum + 2; //offset 0 and 1
-
-        // check to see if it is the same number that was previously minted
-        //if (randomNFT == previousRandom) {
-        //    randomNFT = randomize(); // change the number
-        //}
 
         _mint(msg.sender, randomNFT, 1, "");
         // mapping for token ID for cap checking
         tokensMinted[randomNFT] += 1;
-        //Set a variable to check against on next run
-        //previousRandom = randomNFT;
+        //request a new base
+        makeRequestUint256();
         // Emit the event
         emit CubeBroken(msg.sender, 1);
     }
@@ -159,13 +147,8 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
 
         require(_amount <= cubeSupply, "Requesting more than you have");
         _burn(msg.sender, Cube, _amount);
-
-
-        //Pull a true random first
         //Recieve random number
         uint256 realRandom = randomize();
-
-
         //loop through but create a random number for each one
         for (uint256 i = 0; i < _amount; i++) {
             //randomize
@@ -176,16 +159,10 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
             _mint(msg.sender, randomNFT, 1, "");
             tokensMinted[randomNFT] += 1; // mapping for token ID
         }
+        //request a new base
+        makeRequestUint256();
 
         emit CubeBroken(msg.sender, _amount);
-        /*
-        //loop through but create a random number for each one
-        for (uint256 i = 0; i < _amount; i++) {
-            uint256 randomNFT = randomize();
-            _mint(msg.sender, randomNFT, 1, "");
-            tokensMinted[randomNFT] += 1; // mapping for token ID
-        }
-        */
     }
 
     function bulkBreakOpenAll() external nonReentrant {
@@ -211,6 +188,8 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
             _mint(msg.sender, randomNFT, 1, "");
             tokensMinted[randomNFT] += 1; // mapping for token ID
         }
+        //request a new base
+        makeRequestUint256();
 
         emit CubeBroken(msg.sender, cubeSupply);
 
@@ -309,7 +288,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
 
     function randomize() internal returns (uint256) {
         // Make request to QRNG
-        makeRequestUint256();
+      //  makeRequestUint256();  // testing a theory
         // Add an additional seed
      //   uint256 randomNumber = (block.difficulty + block.timestamp + seed) % 25;
         //Get return form QRNG

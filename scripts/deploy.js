@@ -9,7 +9,7 @@ async function main() {
   const airnodeRrp = "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd"; // Rinkeby & Gnosis
   const royaltyWallet = "0x49284a18822eE0d75fD928e5e0fC5a46C9213D96";
   const ipfsPath = "https://nfbeez.mypinata.cloud/ipfs/QmbrPWpDqrfKKaCw9XVvroUb3cS7c8LYP3jvAP6ZhQDekC/";
-  const artist = "0x9263bFf6ACCb60E83254E95220e7637465298171";   // Ata Address
+ // const artist = "0x9263bFf6ACCb60E83254E95220e7637465298171";   // Ata Address
   const beezSafe = "0x2BdE4a5458452307aD080e09D8fB5c74FA71d208";  // NFBeez Safe - safe on rinkeby
   const donation = "0x6961367Ef8b92c1a306a68C87ADD9Eafd09f7787";  // donation 
   
@@ -27,7 +27,7 @@ async function main() {
 
  // const CUBE = await hre.ethers.getContractFactory("BeezCube");
   const CUBE = await hre.ethers.getContractFactory("TestZone");
-  const cube = await CUBE.deploy(web3.address, airnodeRrp, royaltyWallet, ipfsPath, artist, beezSafe, donation);
+  const cube = await CUBE.deploy(web3.address, airnodeRrp, royaltyWallet, ipfsPath, beezSafe, donation);
 
   await cube.deployed();
 
