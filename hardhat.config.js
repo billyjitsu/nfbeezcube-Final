@@ -7,7 +7,7 @@ module.exports = {
   solidity: {
     compilers: [
       {
-        version: "0.8.10",
+        version: "0.8.17",
         settings: {
           optimizer: {
             enabled: true,
@@ -33,11 +33,11 @@ module.exports = {
       chainId: 1337
     },
 
-    rinkeby: {
-      url: process.env.RINKEBY_RPC_URL,
+    goerli: {
+      url: process.env.GOERLI_RPC_URL,
       accounts: [process.env.PRIVATE_KEY],
-      gas: 300000000,
-      gasPrice: 100000000000,
+      // gas: 300000000,
+      // gasPrice: 100000000000,
       saveDeployments: true,
     },
     polygon: {

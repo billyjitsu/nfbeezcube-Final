@@ -12,7 +12,7 @@ contract QRNG is Ownable, RrpRequesterV0 {
     address public sponsorWallet;
     bytes32 public endpointIdUint256;
 
-    uint256 public randomNumberReturn;  // make private
+    uint256 private randomNumberReturn; 
 
     mapping(bytes32 => bool) public expectingRequestWithIdToBeFulfilled;
 
@@ -25,8 +25,6 @@ contract QRNG is Ownable, RrpRequesterV0 {
         bytes32 _endpointIdUint256,
         address _sponsorWallet
     ) external onlyOwner {
-        // Normally, this function should be protected, as in:
-        // require(msg.sender == owner, "Sender not owner");
         airnode = _airnode;
         endpointIdUint256 = _endpointIdUint256;
         sponsorWallet = _sponsorWallet;
@@ -61,14 +59,11 @@ contract QRNG is Ownable, RrpRequesterV0 {
         );
         expectingRequestWithIdToBeFulfilled[requestId] = false;
         uint256 qrngUint256 = abi.decode(data, (uint256));
-        // Do what you want with `qrngUint256` here...
-
-        randomNumberReturn = qrngUint256; // taking off % 25
+        randomNumberReturn = qrngUint256; 
         emit ReceivedUint256(requestId, qrngUint256);
     }
 
     function getRandom() internal view returns (uint256) {
-        // was public
         return randomNumberReturn;
     }
 }

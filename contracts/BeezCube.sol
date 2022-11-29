@@ -11,27 +11,19 @@ import "./QRNG.sol";
 import "./INFBeez.sol";
 
 /******** TODOs ********
-      uncomment out Mint payment req Line 62
+
       ultimately remove NFT.sol (add in beez contract)
-      uncomment out the contract name - line 20
-      fix NFT Names - line 221
-      UPDDATE to correct price
-      Possible Mint bonus for DAO Cube
-      create events - cubes created.. etc
-
-      check each bulk burn for 27 max
-
-      on QRNG.sol
-      linet 15 make private
-      change line 66 mod 25 (change to new number)
+      uncomment out the contract name - line 29
+      fix NFT Names - line 310
+      UPDDATE to correct price - line 32 - 20 ether
        */
 
-//contract BeezCube is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
+//contract TheCube is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
 contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     // Price of one Cube
     uint256 public tokenPrice = 0.0001 ether; //fix price
     uint256 public constant maxTotalSupply = 5000;
-    uint256 public maxPurchaseSupply = 2475; //5,000 - claimable (2525)
+    uint256 public maxPurchaseSupply = 2475;
     uint256 public maxClaims = 2525;
     uint256 public maxDAOCube = 200;
     //token ID for how many NFTs
@@ -42,16 +34,19 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     uint256 public cubesClaimed;
 
     uint256 private constant Cube = 1;
-    uint256 private constant DAOCube = 27; //change to new numbers
+    uint256 private constant DAOCube = 28; //change to new numbers 29 NFBeez 30/31 OG cube
     uint256 private seed;
     uint256 private shifter;
-    uint256 private previousRandom;
-    //Payout addresses
-  //  address public artist;
+
     address public beezSafe;
-    address public donation;
-    // Pause all mint and claim activity
+
     bool public paused;
+
+    // Possibly create value for each to burn
+    uint256[] internal tokens = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 ,22, 23, 24, 25, 26, 27];
+    uint256[] internal tokenAmounts = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 , 1, 1, 1, 1, 1, 1];
+    uint256[] internal DAOTokens = [28, 29, 30, 31];
+    uint256[] internal DAOTokenAmounts = [1, 1, 1, 1]; 
 
     string public CubeNFT;
     // NFBeezNFT contract instance
@@ -73,9 +68,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         address _airnodeRrp,
         address _royalty,
         string memory _cubeNFT,
-       // address _artist,
-        address _beezSafe,
-        address _donation
+        address _beezSafe
     ) ERC1155(_cubeNFT) QRNG(_airnodeRrp) {
         NFBeezNFT = INFBeez(_ogNFBeezContract);
 
@@ -83,20 +76,13 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         uint96 _royaltyFeesInBips = 500;
         setRoyaltyInfo(_royalty, _royaltyFeesInBips);
         CubeNFT = _cubeNFT;
-     //   artist = _artist;
         beezSafe = _beezSafe;
-        donation = _donation;
     }
 
     function mint(uint256 amount) external payable {
-        //uncomment out the fee for mint
-
-        //require not paused
         require(!paused, "Contract Paused");
         // the value of ether that should be equal or greater than tokenPrice * amount;
-        //uint256 _requiredAmount = tokenPrice * amount;
-        //require(msg.value >= _requiredAmount, "Ether sent is incorrect");
-        require(msg.value >= (tokenPrice * amount), "Ether sent is incorrect"); // check this
+        require(msg.value >= (tokenPrice * amount), "Ether sent is incorrect"); 
         require(
             (cubesMinted + amount) <= maxTotalSupply,
             "Exceeds the max total supply available TS."
@@ -115,8 +101,13 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         emit CubeMinted(msg.sender, amount);
     }
 
+    /*  
+    The nature of the random number request is two transactions to complete
+    Pulling a random base number to use and then generate numbers off of the seeded number
+    Purely for speed of minting/breaking large amounts
+    */
+
     function breakOpen() external nonReentrant {
-        // add nonrentrant
         //require not paused
         require(!paused, "Contract Paused");
         //Check the balance of Cubes
@@ -126,7 +117,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         //Recieve random number
         uint256 realRandom = randomize();
         uint256 localRandom = randomNumber();
-        uint256 sum = (realRandom + localRandom) % 25;  // adjusting for 25 nfts
+        uint256 sum = (realRandom + localRandom) % 26;  // adjusting for 26 nfts
         uint256 randomNFT = sum + 2; //offset 0 and 1
 
         _mint(msg.sender, randomNFT, 1, "");
@@ -153,21 +144,19 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         for (uint256 i = 0; i < _amount; i++) {
             //randomize
             uint256 localRandom = randomNumber();
-            uint256 sum = (realRandom + localRandom) % 25;  // adjusting for 25 nfts
+            uint256 sum = (realRandom + localRandom) % 26;  // adjusting for 26 nfts
             uint256 randomNFT = sum + 2; //offset 0 and 1
 
             _mint(msg.sender, randomNFT, 1, "");
             tokensMinted[randomNFT] += 1; // mapping for token ID
         }
-        //request a new base
+
         makeRequestUint256();
 
         emit CubeBroken(msg.sender, _amount);
     }
 
     function bulkBreakOpenAll() external nonReentrant {
-        // add nonrentrant
-        //require not paused
         require(!paused, "Contract Paused");
 
         uint256 cubeSupply = balanceOf(msg.sender, Cube);
@@ -175,37 +164,24 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         _burn(msg.sender, Cube, cubeSupply);
 
         //Pull a true random first
-        //Recieve random number
         uint256 realRandom = randomize();
 
-        //loop through but create a random number for each one
         for (uint256 i = 0; i < cubeSupply; i++) {
             //randomize
             uint256 localRandom = randomNumber();
-            uint256 sum = (realRandom + localRandom) % 25;  // adjusting for 25 nfts
+            uint256 sum = (realRandom + localRandom) % 26;  // adjusting for 26 nfts
             uint256 randomNFT = sum + 2; //offset 0 and 1
 
             _mint(msg.sender, randomNFT, 1, "");
             tokensMinted[randomNFT] += 1; // mapping for token ID
         }
-        //request a new base
+
         makeRequestUint256();
 
         emit CubeBroken(msg.sender, cubeSupply);
-
-
-        /*
-        //loop through but create a random number for each one
-        for (uint256 i = 0; i < cubeSupply; i++) {
-            uint256 randomNFT = randomize();
-            _mint(msg.sender, randomNFT, 1, "");
-            tokensMinted[randomNFT] += 1; // mapping for token ID
-        }
-        */
     }
 
     function createDAOCube() external nonReentrant {  // add virtual upgrade option
-        // add nonrentrant
         //Create a cap for DAO cubes
         require(
             (DAOCubesMinted + 1) <= maxDAOCube,
@@ -219,12 +195,9 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
             require(balance > 0, "Not Complete Set");
         }
 
-        for (uint256 i = 2; i < DAOCube; i++) { //Check this burn number 
-            _burn(msg.sender, i, 1);
-        }
-
-        // create the DAO cube
-        _mint(msg.sender, DAOCube, 1, "");
+        _burnBatch(msg.sender, tokens, tokenAmounts);    
+        // create the DAO cube and bonuse
+        _mintBatch(msg.sender, DAOTokens, DAOTokenAmounts, "");
 
         DAOCubesMinted += 1;
 
@@ -286,23 +259,15 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         emit CubeClaimed(msg.sender, balance);
     }
 
+    //reduced functionality - creating issues with simultaneous calls
     function randomize() internal returns (uint256) {
-        // Make request to QRNG
-      //  makeRequestUint256();  // testing a theory
-        // Add an additional seed
-     //   uint256 randomNumber = (block.difficulty + block.timestamp + seed) % 25;
-        //Get return form QRNG
-     //   uint256 rng = getRandom();
-        //add the sum
-     //   uint256 sum = (randomNumber + rng) % 25;
-     //   seed = sum + 2; //offset 0 and 1
           seed = getRandom();
         return seed;
     }
 
     function randomNumber () internal returns (uint256) {
         // Add an additional seed
-        uint256 localRand = (block.difficulty + block.timestamp + shifter); //taking off %25
+        uint256 localRand = (block.difficulty + block.timestamp + shifter) % 7777; 
         shifter = localRand;
         return localRand;
     }
@@ -317,7 +282,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
 
     /*
     function name() public pure returns (string memory) {
-        return "NFBeez Cube";
+        return "The Cube";
     }
 
     function symbol() public pure returns (string memory) {
@@ -350,7 +315,6 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     }
 
     // Only Owner Functions
-    //Change Royalty info
     function setRoyaltyInfo(address _receiver, uint96 _royaltyFeesInBips)
         public
         onlyOwner
@@ -370,21 +334,9 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         maxDAOCube = _newMax; //Incase Tokens go offbalance
     }
 
-    /*
-    //update artist wallet
-    function updateArtistWallet(address _artist) external onlyOwner {
-        artist = _artist;
-    }
-    */
-
     //update Beez Safe Wallet
     function updateBeezWallet(address _beezSafe) external onlyOwner {
         beezSafe = _beezSafe;
-    }
-
-    // update Donations Wallet
-    function updateDonationWallet(address _donation) external onlyOwner {
-        donation = _donation;
     }
 
     //function to pull out token
@@ -398,12 +350,12 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     // Pull Payments
     function withdraw() external onlyOwner {
         //10%  calculation
-        uint256 withdrawAmount_10 = ((address(this).balance) * 10) / 100;
+       // uint256 withdrawAmount_10 = ((address(this).balance) * 10) / 100;
         //25%
         uint256 withdrawAmount_25 = ((address(this).balance) * 25) / 100;
 
-        (bool don, ) = payable(donation).call{value: withdrawAmount_10}("");
-        require(don, "Gitcoin not sent");
+        // (bool don, ) = payable(donation).call{value: withdrawAmount_10}("");
+        // require(don, "Gitcoin not sent");
         (bool sent, ) = payable(beezSafe).call{value: withdrawAmount_25}("");
         require(sent, "beezsafe not sent");
         (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
