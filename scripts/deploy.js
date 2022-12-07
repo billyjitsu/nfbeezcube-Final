@@ -5,14 +5,12 @@ async function main() {
   //variables
  // const royalty = "500";
  
-  const NFBeez = "0x0f37B8101f014cf9806799b7159b32c010397d55";
-  const airnodeRrp = "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd"; // Rinkeby & Gnosis
+  const NFBeez = "0x0f37B8101f014cf9806799b7159b32c010397d55"; //NFBeez Gnosis contract address 
+  const airnodeRrp = "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd"; //Gnosis
   const royaltyWallet = "0x49284a18822eE0d75fD928e5e0fC5a46C9213D96";
-  const ipfsPath = "https://nfbeez.mypinata.cloud/ipfs/QmS6Ce2iFyaxvyyUzTBnvPNysR5TrsrPGWdMjDWEt9wwK3/";
- // const artist = "0x9263bFf6ACCb60E83254E95220e7637465298171";   // Ata Address
-  const beezSafe = "0x2BdE4a5458452307aD080e09D8fB5c74FA71d208";  // NFBeez Safe - safe on rinkeby
-//  const donation = "0x6961367Ef8b92c1a306a68C87ADD9Eafd09f7787";  // donation 
-   const testNFT = "0xfeE366C16aB4E158F324C6BA2D390a5be70b6b96"
+  const ipfsPath = "https://nfbeez.mypinata.cloud/ipfs/QmccZDgNgShYe4jbYR7PHVCisdd7C8jTAAAFpYJhZ8oxwE/";
+  const beezSafe = "0x0fA8e1C23d4af14e94F7F75367a3fA4111b7B047";  // NFBeez Gnosis
+   const testNFT = "0xfeE366C16aB4E158F324C6BA2D390a5be70b6b96"  // temp Goerli temp NFT
   
  
   // const Web3 = await hre.ethers.getContractFactory("MyToken");
@@ -28,7 +26,7 @@ async function main() {
  // const CUBE = await hre.ethers.getContractFactory("BeezCube");
   const CUBE = await hre.ethers.getContractFactory("TestZone");
   //const cube = await CUBE.deploy(web3.address, airnodeRrp, royaltyWallet, ipfsPath, beezSafe);
-  const cube = await CUBE.deploy(testNFT, airnodeRrp, royaltyWallet, ipfsPath, beezSafe);
+  const cube = await CUBE.deploy(NFBeez, airnodeRrp, royaltyWallet, ipfsPath, beezSafe);
 
   await cube.deployed();
 
