@@ -24,7 +24,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     uint256 public constant maxTotalSupply = 5000;
     uint256 public maxPurchaseSupply = 2475;
     uint256 public maxClaims = 2525;
-    uint256 public maxDAOCube = 200;
+    uint256 public maxDAOCube = 225;
     //token ID for how many NFTs
     uint256 public cubesMinted;
     uint256 public DAOCubesMinted;
@@ -33,15 +33,14 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     uint256 public cubesClaimed;
 
     uint256 private constant Cube = 1;
-    uint256 private constant DAOCube = 28; //change to new numbers 29 NFBeez 30/31 OG cube
-    uint256 public seed;  //
+    uint256 private constant DAOCube = 28; 
+    uint256 private seed; 
     uint256 private shifter;
 
     address public beezSafe;
 
     bool public paused;
 
-    // Possibly create value for each to burn
     uint256[] internal tokens = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 ,22, 23, 24, 25, 26, 27];
     uint256[] internal tokenAmounts = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
     uint256[] internal DAOTokens = [28, 29, 30, 31];
@@ -59,7 +58,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     event CubeMinted(address minter, uint256 _amount);
     event CubeClaimed(address minter, uint256 _amount);
     event CubeBroken(address minter, uint256 _amount);
-    event DaoCubeCreated(address minter); 
+    event DaoCubeCreated(address minter, uint256 _daoTokens, uint256 _amount); 
     event AdminMinted(address reciever, uint256 _amount, uint256 _id);
 
     constructor(
@@ -80,12 +79,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
 
     function mint(uint256 amount) external payable {
         require(!paused, "Contract Paused");
-        // the value of ether that should be equal or greater than tokenPrice * amount;
         require(msg.value >= (tokenPrice * amount), "Ether sent is incorrect"); 
-        // require(
-        //     (cubesMinted + amount) <= maxTotalSupply,
-        //     "Exceeds the max total supply available TS."
-        // );
         require(
             (cubesPurchased + amount) <= maxPurchaseSupply,
             "Exceeds the max total supply available PS."
@@ -114,7 +108,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         //Recieve random number
         uint256 realRandom = randomize();
         uint256 localRandom = randomNumber();
-        uint256 sum = (realRandom + localRandom) % 26;  // adjusting for 26 nfts
+        uint256 sum = (realRandom + localRandom) % 26;  // 26 nfts
         uint256 randomNFT = sum + 2;
 
         _mint(msg.sender, randomNFT, 1, "");
@@ -132,14 +126,9 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         require(_amount <= cubeSupply, "Requesting more than you have");
         _burn(msg.sender, Cube, _amount);
 
-       // uint256 realRandom = randomize();
-
-        //loop through but create a random number for each one
         for (uint256 i = 0; i < _amount; i++) {
-            //randomize
             uint256 localRandom = randomNumber();
-           // uint256 sum = (realRandom + localRandom) % 26;  // adjusting for 26 nfts
-            uint256 sum = (seed + localRandom) % 26;  // adjusting for 26 nfts
+            uint256 sum = (seed + localRandom) % 26;  // 26 nfts
             uint256 randomNFT = sum + 2; 
 
             _mint(msg.sender, randomNFT, 1, "");
@@ -156,11 +145,9 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         uint256 cubeSupply = balanceOf(msg.sender, Cube);
         require(cubeSupply > 0, "Need a cube");
         _burn(msg.sender, Cube, cubeSupply);
-       // uint256 realRandom = randomize();
 
         for (uint256 i = 0; i < cubeSupply; i++) {
             uint256 localRandom = randomNumber();
-            // uint256 sum = (realRandom + localRandom) % 26;  // adjusting for 26 nfts
             uint256 sum = (seed + localRandom) % 26;  // adjusting for 26 nfts
             uint256 randomNFT = sum + 2; 
 
@@ -172,7 +159,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         emit CubeBroken(msg.sender, cubeSupply);
     }
 
-    function createDAOCube() external nonReentrant {  // add virtual upgrade option
+    function createDAOCube() external nonReentrant {
         require(
             (DAOCubesMinted + 1) <= maxDAOCube,
             "Exceeds the max total supply available"
@@ -189,20 +176,12 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         _mintBatch(msg.sender, DAOTokens, DAOTokenAmounts, "");
 
         DAOCubesMinted += 1;
-        emit DaoCubeCreated(msg.sender);
+        emit DaoCubeCreated(msg.sender, Daotokens, DAOTokenAmounts);
     }
 
-    //To distribute to participating DAOs - Will include in total Mints
+    //To distribute to participating DAOs 
     function adminMint(address _reciever,uint256 _amount, uint256 _tokenId) external onlyOwner {
         require(!paused, "Contract Paused");
-        // require(
-        //     (cubesMinted + _amount) <= maxTotalSupply,
-        //     "Exceeds the max total supply available."
-        // );
-        // require(
-        //     (cubesMinted + _amount) <= maxPurchaseSupply,
-        //     "Exceeds the max total supply available."
-        // );
         _mint(_reciever, _tokenId, _amount, "");
         if(_tokenId == 1){
             cubesMinted += _amount;
@@ -244,7 +223,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     }
 
     function randomize() internal returns (uint256) {
-          seed = getRandom() % 547;
+          seed = getRandom();
         return seed;
     }
 

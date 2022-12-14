@@ -48,7 +48,7 @@ module.exports = {
     xdai: {
       url: process.env.XDAI_RPC_URL,
       accounts: [process.env.PRIVATE_KEY],
-      // gas: 200000000,
+      // gas: 20000000,
       // gasPrice: 100000000000,
       saveDeployments: true,
     },
