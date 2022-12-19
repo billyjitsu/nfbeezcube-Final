@@ -58,8 +58,8 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
     event CubeMinted(address minter, uint256 _amount);
     event CubeClaimed(address minter, uint256 _amount);
     event CubeBroken(address minter, uint256 _amount);
-    event DaoCubeCreated(address minter, uint256 _daoTokens, uint256 _amount); 
-    event AdminMinted(address reciever, uint256 _amount, uint256 _id);
+    event DaoCubeCreated(address minter, uint256 [] _daoTokens, uint256 [] _amount); 
+    event AdminMinted(address [] reciever, uint256 _amount, uint256 _id);
 
     constructor(
         address _ogNFBeezContract,
@@ -176,16 +176,34 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         _mintBatch(msg.sender, DAOTokens, DAOTokenAmounts, "");
 
         DAOCubesMinted += 1;
-        emit DaoCubeCreated(msg.sender, Daotokens, DAOTokenAmounts);
+        emit DaoCubeCreated(msg.sender, DAOTokens, DAOTokenAmounts);
     }
 
     //To distribute to participating DAOs 
-    function adminMint(address _reciever,uint256 _amount, uint256 _tokenId) external onlyOwner {
+    // function adminMint(address _reciever,uint256 _amount, uint256 _tokenId) external onlyOwner {
+    //     require(!paused, "Contract Paused");
+    //     _mint(_reciever, _tokenId, _amount, "");
+    //     if(_tokenId == 1){
+    //         cubesMinted += _amount;
+    //         cubesPurchased += _amount;
+    //     }
+    //     emit AdminMinted(_reciever, _amount, _tokenId);
+    // }
+
+    function adminMint(address[] memory _reciever, uint256 _amount, uint256 _tokenId) external onlyOwner {
+        require(
+            (cubesPurchased + _amount) <= maxPurchaseSupply,
+            "Exceeds the max total supply available PS."
+        );
         require(!paused, "Contract Paused");
-        _mint(_reciever, _tokenId, _amount, "");
-        if(_tokenId == 1){
+
+        for (uint256 i = 0; i < _reciever.length; i++) {
+            _mint(_reciever[i], _amount, _tokenId, "");
+
+            if(_tokenId == 1){
             cubesMinted += _amount;
             cubesPurchased += _amount;
+        }
         }
         emit AdminMinted(_reciever, _amount, _tokenId);
     }
@@ -272,7 +290,8 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         override(ERC1155, ERC2981)
         returns (bool)
     {
-        return super.supportsInterface(interfaceId);
+        return ERC1155.supportsInterface(interfaceId) ||
+            ERC2981.supportsInterface(interfaceId);
     }
 
     // Only Owner Functions
@@ -315,6 +334,5 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(success, "Safe not sent");
     }
-    receive() external payable {}
-    fallback() external payable {}
+  
 }
