@@ -8,7 +8,7 @@ async function main() {
   const NFBeez = "0x0f37B8101f014cf9806799b7159b32c010397d55"; //NFBeez Gnosis contract address 
   const airnodeRrp = "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd"; //Gnosis
   const royaltyWallet = "0x49284a18822eE0d75fD928e5e0fC5a46C9213D96";
-  const ipfsPath = "https://nfbeez.mypinata.cloud/ipfs/QmccZDgNgShYe4jbYR7PHVCisdd7C8jTAAAFpYJhZ8oxwE/";
+  const ipfsPath = "https://nfbeez.mypinata.cloud/ipfs/QmYnE2aEkEvM6DRQ6zRFTFAw7oZ35PTKkay9cBV97U2SpU/";
   const beezSafe = "0x0fA8e1C23d4af14e94F7F75367a3fA4111b7B047";  // NFBeez Gnosis
    const testNFT = "0xfeE366C16aB4E158F324C6BA2D390a5be70b6b96"  // temp Goerli temp NFT
   

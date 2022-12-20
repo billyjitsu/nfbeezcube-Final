@@ -179,17 +179,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         emit DaoCubeCreated(msg.sender, DAOTokens, DAOTokenAmounts);
     }
 
-    //To distribute to participating DAOs 
-    // function adminMint(address _reciever,uint256 _amount, uint256 _tokenId) external onlyOwner {
-    //     require(!paused, "Contract Paused");
-    //     _mint(_reciever, _tokenId, _amount, "");
-    //     if(_tokenId == 1){
-    //         cubesMinted += _amount;
-    //         cubesPurchased += _amount;
-    //     }
-    //     emit AdminMinted(_reciever, _amount, _tokenId);
-    // }
-
+    //To distribute to participating DAOs and giveaways
     function adminMint(address[] memory _reciever, uint256 _amount, uint256 _tokenId) external onlyOwner {
         require(
             (cubesPurchased + _amount) <= maxPurchaseSupply,
@@ -198,7 +188,7 @@ contract TestZone is ERC1155Supply, ERC2981, Ownable, ReentrancyGuard, QRNG {
         require(!paused, "Contract Paused");
 
         for (uint256 i = 0; i < _reciever.length; i++) {
-            _mint(_reciever[i], _amount, _tokenId, "");
+            _mint(_reciever[i], _tokenId, _amount, "");
 
             if(_tokenId == 1){
             cubesMinted += _amount;
